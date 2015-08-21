@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Resizer.cs" company="James South">
 //   Copyright (c) James South.
 //   Licensed under the Apache License, Version 2.0.
@@ -229,7 +229,7 @@ namespace ImageProcessor.Imaging
 
                 // Change the destination rectangle coordinates if padding and
                 // there has been a set width and height.
-                if (resizeMode == ResizeMode.Pad && width > 0 && height > 0)
+                if (resizeMode == ResizeMode.Pad && width > 0 && height > 0 && ((sourceWidth > width && sourceHeight > height) || upscale))
                 {
                     double ratio;
 
@@ -278,6 +278,57 @@ namespace ImageProcessor.Imaging
                         }
                     }
                 }
+                else if (resizeMode == ResizeMode.Pad && ((width > 0 && sourceWidth < width) || (height > 0 && sourceHeight < height)) && !upscale)
+                {
+                    height = height > 0 ? height : sourceHeight;
+                    width = width > 0 ? width : sourceWidth;
+
+                    destinationWidth = sourceWidth;
+                    destinationHeight = sourceHeight;
+
+                    upscale = true;
+
+                    switch (anchorPosition)
+                    {
+                        case AnchorPosition.Left:
+                            destinationY = (height - sourceHeight) / 2;
+                            destinationX = 0;
+                            break;
+                        case AnchorPosition.Right:
+                            destinationY = (height - sourceHeight) / 2;
+                            destinationX = width - sourceWidth;
+                            break;
+                        case AnchorPosition.TopRight:
+                            destinationY = 0;
+                            destinationX = width - sourceWidth;
+                            break;
+                        case AnchorPosition.Top:
+                            destinationY = 0;
+                            destinationX = (width - sourceWidth) / 2;
+                            break;
+                        case AnchorPosition.TopLeft:
+                            destinationY = 0;
+                            destinationX = 0;
+                            break;
+                        case AnchorPosition.BottomRight:
+                            destinationY = height - sourceHeight;
+                            destinationX = width - sourceWidth;
+                            break;
+                        case AnchorPosition.Bottom:
+                            destinationY = height - sourceHeight;
+                            destinationX = (width - sourceWidth) / 2;
+                            break;
+                        case AnchorPosition.BottomLeft:
+                            destinationY = height - sourceHeight;
+                            destinationX = 0;
+                            break;
+                        default:
+                            destinationY = (height - sourceHeight) / 2;
+                            destinationX = (width - sourceWidth) / 2;
+                            break;
+                    }
+                }
+
 
                 // Change the destination rectangle coordinates if cropping and
                 // there has been a set width and height.
